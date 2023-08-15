@@ -1,5 +1,5 @@
 {
-  "name": "@codistan-isb/bizb-api-plugin-carts",
+  "name": "@reaction-commerce/api-plugin-carts",
   "description": "Carts plugin for the Reaction API",
   "version": "0.0.0-development",
   "main": "index.js",
