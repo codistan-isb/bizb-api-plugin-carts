@@ -217,6 +217,8 @@ type CartItem implements Node {
 
   "The product vendor"
   productVendor: String
+  
+  storeName : storeName
 
   "The quantity of this item that has been added to the cart. This must be a positive integer. Remove this `CartItem` from it's associated cart if you want `0` of this item."
   quantity: Int!
@@ -235,6 +237,10 @@ type CartItem implements Node {
 
   "The selected variant title"
   variantTitle: String
+}
+
+type storeName{
+  storeName: String
 }
 
 "Supported cart reconciliation modes"
