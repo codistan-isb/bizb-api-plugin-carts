@@ -7,7 +7,7 @@ import ReactionError from "@reactioncommerce/reaction-error";
  * @param {Object} cart - The cart to transform and insert or replace
  * @returns {Object} Transformed and saved cart
  */
-export default async function saveCart(context, cart) {
+export default async function saveCart(context, cart, session) {
   const {
     appEvents,
     collections: { Cart },
@@ -21,8 +21,12 @@ export default async function saveCart(context, cart) {
   const { result, upsertedCount } = await Cart.replaceOne(
     { _id: cart._id },
     cart,
-    { upsert: true }
+    { upsert: true, session }
   );
+
+  console.log("replace one cart is ", result);
+
+  console.log("cart in step 2.2", cart);
 
   console.log("upserted count in cart is  ", upsertedCount);
 

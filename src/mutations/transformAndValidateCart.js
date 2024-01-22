@@ -14,7 +14,9 @@ const logCtx = { name: "cart", file: "transformAndValidateCart" };
  * @returns {undefined}
  */
 export default async function transformAndValidateCart(context, cart) {
-  const { simpleSchemas: { Cart: cartSchema } } = context;
+  const {
+    simpleSchemas: { Cart: cartSchema },
+  } = context;
   updateCartFulfillmentGroups(context, cart);
 
   let commonOrders;
@@ -28,8 +30,11 @@ export default async function transformAndValidateCart(context, cart) {
    */
   async function getCommonOrders({ shouldRebuild = false } = {}) {
     if (!commonOrders || shouldRebuild) {
-      commonOrders = await Promise.all(cart.shipping.map((group) =>
-        xformCartGroupToCommonOrder(cart, group, context)));
+      commonOrders = await Promise.all(
+        cart.shipping.map((group) =>
+          xformCartGroupToCommonOrder(cart, group, context)
+        )
+      );
     }
     return commonOrders;
   }
@@ -43,7 +48,10 @@ export default async function transformAndValidateCart(context, cart) {
     /* eslint-disable no-await-in-loop */
     await transformInfo.fn(context, cart, { getCommonOrders });
     /* eslint-enable no-await-in-loop */
-    Logger.debug({ ...logCtx, cartId: cart._id, ms: Date.now() - startTime }, `Finished ${transformInfo.name} cart transform`);
+    Logger.debug(
+      { ...logCtx, cartId: cart._id, ms: Date.now() - startTime },
+      `Finished ${transformInfo.name} cart transform`
+    );
   });
 
   cartSchema.validate(cart);
