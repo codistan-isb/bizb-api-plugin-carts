@@ -4,24 +4,24 @@ import accounting from "accounting-js";
 import ReactionError from "@reactioncommerce/reaction-error";
 
 const inputItemSchema = new SimpleSchema({
-  "metafields": {
+  metafields: {
     type: Array,
-    optional: true
+    optional: true,
   },
   "metafields.$": {
     type: Object,
-    blackbox: true
+    blackbox: true,
   },
-  "productConfiguration": Object,
+  productConfiguration: Object,
   "productConfiguration.productId": String,
   "productConfiguration.productVariantId": String,
-  "quantity": SimpleSchema.Integer,
-  "price": Object,
+  quantity: SimpleSchema.Integer,
+  price: Object,
   "price.currencyCode": String,
   "price.amount": {
     type: Number,
-    optional: true
-  }
+    optional: true,
+  },
 });
 
 /**
@@ -35,8 +35,22 @@ const inputItemSchema = new SimpleSchema({
  *   Skipping this is not recommended for new code.
  * @returns {Object} Object with `incorrectPriceFailures` and `minOrderQuantityFailures` and `updatedItemList` props
  */
-export default async function addCartItems(context, currentItems, inputItems, options = {}) {
-  const { queries } = context;
+export default async function addCartItems(
+  context,
+  currentItems,
+  inputItems,
+  options = {}
+) {
+  const { queries, collections } = context;
+
+  if (!collections || !collections.Catalog) {
+    throw new ReactionError(
+      "not-found",
+      "Catalog collection is not available in the context."
+    );
+  }
+
+  const { Catalog, Accounts } = collections;
 
   inputItemSchema.validate(inputItems);
 
@@ -50,28 +64,58 @@ export default async function addCartItems(context, currentItems, inputItems, op
     const { metafields, productConfiguration, quantity, price } = inputItem;
     const { productId, productVariantId } = productConfiguration;
 
+    // const storeName = await storeNameValue(context, productId);
+
+    // console.log("STORE", storeName);
+
+    // console.log("VARINT ID", productVariantId);
+
     // Get the published product from the DB, in order to get variant title and check price.
     // This could be done outside of the loop to reduce db hits, but 99% of the time inputItems
     // will have only one item, so we can skip that optimization for now in favor of cleaner code.
     const {
       catalogProduct,
       parentVariant,
-      variant: chosenVariant
-    } = await queries.findProductAndVariant(context, productId, productVariantId);
+      variant: chosenVariant,
+    } = await queries.findProductAndVariant(
+      context,
+      productId,
+      productVariantId
+    );
 
-    const variantPriceInfo = await queries.getVariantPrice(context, chosenVariant, price.currencyCode);
+    const userId = chosenVariant.uploadedBy?.userId;
+
+    console.log("USERID", userId);
+
+    const store = await Accounts.findOne({ _id: userId });
+
+    const storeName = store.storeName;
+
+    console.log("STORENAME", storeName);
+
+    const variantPriceInfo = await queries.getVariantPrice(
+      context,
+      chosenVariant,
+      price.currencyCode
+    );
     if (!variantPriceInfo) {
-      throw new ReactionError("invalid-param", `This product variant does not have a price for ${price.currencyCode}`);
+      throw new ReactionError(
+        "invalid-param",
+        `This product variant does not have a price for ${price.currencyCode}`
+      );
     }
 
-    if (options.skipPriceCheck !== true && variantPriceInfo.price !== price.amount) {
+    if (
+      options.skipPriceCheck !== true &&
+      variantPriceInfo.price !== price.amount
+    ) {
       incorrectPriceFailures.push({
         currentPrice: {
           amount: variantPriceInfo.price,
-          currencyCode: price.currencyCode
+          currencyCode: price.currencyCode,
         },
         productConfiguration,
-        providedPrice: price
+        providedPrice: price,
       });
       return;
     }
@@ -82,7 +126,7 @@ export default async function addCartItems(context, currentItems, inputItems, op
       minOrderQuantityFailures.push({
         minOrderQuantity,
         productConfiguration,
-        quantity
+        quantity,
       });
       return;
     }
@@ -97,12 +141,12 @@ export default async function addCartItems(context, currentItems, inputItems, op
     if (parentVariant) {
       attributes.push({
         label: parentVariant.attributeLabel,
-        value: parentVariant.optionTitle
+        value: parentVariant.optionTitle,
       });
     }
     attributes.push({
       label: chosenVariant.attributeLabel,
-      value: chosenVariant.optionTitle
+      value: chosenVariant.optionTitle,
     });
 
     const cartItem = {
@@ -117,11 +161,11 @@ export default async function addCartItems(context, currentItems, inputItems, op
       // catalog changes whereas `priceWhenAdded` will not.
       price: {
         amount: variantPriceInfo.price,
-        currencyCode: price.currencyCode
+        currencyCode: price.currencyCode,
       },
       priceWhenAdded: {
         amount: variantPriceInfo.price,
-        currencyCode: price.currencyCode
+        currencyCode: price.currencyCode,
       },
       productId,
       productSlug: catalogProduct.slug,
@@ -130,27 +174,37 @@ export default async function addCartItems(context, currentItems, inputItems, op
       productTagIds: catalogProduct.tagIds,
       quantity,
       shopId: catalogProduct.shopId,
+      storeNameValue: { storeName }, // Here is where it's being added
       // Subtotal will be kept updated by event handler watching for catalog changes.
       subtotal: {
         amount: +accounting.toFixed(variantPriceInfo.price * quantity, 3),
-        currencyCode: price.currencyCode
+        currencyCode: price.currencyCode,
       },
       taxCode: chosenVariant.taxCode,
       title: catalogProduct.title,
       updatedAt: currentDateTime,
       variantId: productVariantId,
-      variantTitle: chosenVariant.title
+      variantTitle: chosenVariant.title,
     };
 
-    if (variantPriceInfo.compareAtPrice || variantPriceInfo.compareAtPrice === 0) {
+    console.log("STORE", storeName); // Log storeName for debugging
+    console.log("STORENAMW", cartItem.storeNameValue);
+
+    if (
+      variantPriceInfo.compareAtPrice ||
+      variantPriceInfo.compareAtPrice === 0
+    ) {
       cartItem.compareAtPrice = {
         amount: variantPriceInfo.compareAtPrice,
-        currencyCode: price.currencyCode
+        currencyCode: price.currencyCode,
       };
     }
 
     // Check whether this variant is already in the cart. If so, increment quantity.
-    const currentMatchingItemIndex = currentItems.findIndex((item) => item.productId === productId && item.variantId === productVariantId);
+    const currentMatchingItemIndex = currentItems.findIndex(
+      (item) =>
+        item.productId === productId && item.variantId === productVariantId
+    );
     if (currentMatchingItemIndex === -1) {
       // These dates should not be overwritten when updating the quantity of an
       // already-added item, so we wait to set them here.
@@ -165,15 +219,18 @@ export default async function addCartItems(context, currentItems, inputItems, op
       // testable code.
       const updatedQuantity = currentCartItem.quantity + cartItem.quantity;
       // Recalculate subtotal with new quantity number
-      const updatedSubtotalAmount = +accounting.toFixed(updatedQuantity * cartItem.price.amount, 3);
+      const updatedSubtotalAmount = +accounting.toFixed(
+        updatedQuantity * cartItem.price.amount,
+        3
+      );
       updatedItemList[currentMatchingItemIndex] = {
         ...currentCartItem,
         ...cartItem,
         quantity: updatedQuantity,
         subtotal: {
           amount: updatedSubtotalAmount,
-          currencyCode: price.currencyCode
-        }
+          currencyCode: price.currencyCode,
+        },
       };
     }
   });
@@ -181,7 +238,9 @@ export default async function addCartItems(context, currentItems, inputItems, op
   await Promise.all(promises);
 
   // Always keep most recently added items at the beginning of the list
-  updatedItemList.sort((itemA, itemB) => itemA.addedAt.getTime() - itemB.addedAt.getTime());
+  updatedItemList.sort(
+    (itemA, itemB) => itemA.addedAt.getTime() - itemB.addedAt.getTime()
+  );
 
   return { incorrectPriceFailures, minOrderQuantityFailures, updatedItemList };
 }
