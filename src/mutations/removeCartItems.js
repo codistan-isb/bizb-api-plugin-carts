@@ -60,7 +60,7 @@ export default async function removeCartItems(context, input) {
     discount: 0.0,
     updatedAt: new Date(),
   };
-  console.log("updatedCart for removing cart ", updatedCart);
+  // console.log("updatedCart for removing cart ", updatedCart);
 
   const savedCart = await context.mutations.saveCart(context, updatedCart);
 

@@ -90,6 +90,8 @@ export default async function createCart(context, input) {
     },
   };
 
+  // console.log("NEW CART", newCart);
+
   let referenceId;
   const createReferenceIdFunctions = getFunctionsOfType(
     "createCartReferenceId"

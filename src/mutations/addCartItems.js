@@ -20,7 +20,7 @@ export default async function addCartItems(context, input, options = {}) {
   const { collections, accountId = null } = context;
   const { Cart } = collections;
 
-  console.log("ACCOUNT ID", accountId);
+  // console.log("ACCOUNT ID", accountId);
   let selector;
   if (accountId) {
     // Account cart
@@ -28,7 +28,7 @@ export default async function addCartItems(context, input, options = {}) {
   } else {
     // Anonymous cart
 
-    console.log("CART TOKEN ", cartToken);
+    // console.log("CART TOKEN ", cartToken);
     // if (!cartToken) {
     //   throw new ReactionError("not-found", "Cart not found");
     // }
@@ -60,7 +60,11 @@ export default async function addCartItems(context, input, options = {}) {
     updatedAt: new Date(),
   };
 
+  cosnole.log("UPDATE CART =======", updateCart);
+
   const savedCart = await context.mutations.saveCart(context, updatedCart);
+
+  console.log("SAVED CART ======= ", savedCart);
 
   return { cart: savedCart, incorrectPriceFailures, minOrderQuantityFailures };
 }

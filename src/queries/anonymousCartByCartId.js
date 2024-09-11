@@ -23,10 +23,8 @@ export default async function anonymousCartByCartId(
     throw new ReactionError("invalid-param", "You must provide a cartId");
   }
 
-  const data = Cart.findOne({
+  return await Cart.findOne({
     _id: cartId,
     anonymousAccessToken: hashToken(cartToken),
   });
-
-  console.log("CART DATA", data);
 }
