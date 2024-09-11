@@ -5,5 +5,5 @@ import getCommonOrderForCartGroup from "./getCommonOrderForCartGroup.js";
 export default {
   accountCartByAccountId,
   anonymousCartByCartId,
-  getCommonOrderForCartGroup
+  getCommonOrderForCartGroup,
 };

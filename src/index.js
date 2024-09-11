@@ -27,39 +27,42 @@ export default async function register(app) {
           [{ accountId: 1 }, { name: "c2_accountId" }],
           [{ accountId: 1, shopId: 1 }],
           [{ anonymousAccessToken: 1 }, { name: "c2_anonymousAccessToken" }],
-          [{
-            referenceId: 1
-          }, {
-            unique: true,
-            // referenceId is an optional field for carts, so we want the uniqueness constraint
-            // to apply only to non-null fields or the second document with value `null`
-            // would throw an error.
-            partialFilterExpression: {
-              referenceId: {
-                $type: "string"
-              }
-            }
-          }],
+          [
+            {
+              referenceId: 1,
+            },
+            {
+              unique: true,
+              // referenceId is an optional field for carts, so we want the uniqueness constraint
+              // to apply only to non-null fields or the second document with value `null`
+              // would throw an error.
+              partialFilterExpression: {
+                referenceId: {
+                  $type: "string",
+                },
+              },
+            },
+          ],
           [{ shopId: 1 }, { name: "c2_shopId" }],
           [{ "items.productId": 1 }, { name: "c2_items.$.productId" }],
-          [{ "items.variantId": 1 }, { name: "c2_items.$.variantId" }]
-        ]
-      }
+          [{ "items.variantId": 1 }, { name: "c2_items.$.variantId" }],
+        ],
+      },
     },
     functionsByType: {
       registerPluginHandler: [registerPluginHandlerForCart],
-      startup: [startup]
+      startup: [startup],
     },
     graphQL: {
       resolvers,
-      schemas
+      schemas,
     },
     mutations,
     queries,
     policies,
     simpleSchemas: {
       Cart,
-      CartItem
-    }
+      CartItem,
+    },
   });
 }

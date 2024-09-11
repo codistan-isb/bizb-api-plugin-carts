@@ -12,7 +12,10 @@ import ReactionError from "@reactioncommerce/reaction-error";
  * @param {String} [params.token] - Anonymous cart token
  * @returns {Promise<Object>|undefined} - A Cart document, if one is found
  */
-export default async function anonymousCartByCartId(context, { cartId, cartToken } = {}) {
+export default async function anonymousCartByCartId(
+  context,
+  { cartId, cartToken } = {}
+) {
   const { collections } = context;
   const { Cart } = collections;
 
@@ -20,8 +23,10 @@ export default async function anonymousCartByCartId(context, { cartId, cartToken
     throw new ReactionError("invalid-param", "You must provide a cartId");
   }
 
-  return Cart.findOne({
+  const data = Cart.findOne({
     _id: cartId,
-    anonymousAccessToken: hashToken(cartToken)
+    anonymousAccessToken: hashToken(cartToken),
   });
+
+  console.log("CART DATA", data);
 }

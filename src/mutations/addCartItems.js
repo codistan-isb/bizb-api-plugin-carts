@@ -20,15 +20,18 @@ export default async function addCartItems(context, input, options = {}) {
   const { collections, accountId = null } = context;
   const { Cart } = collections;
 
+  console.log("ACCOUNT ID", accountId);
   let selector;
   if (accountId) {
     // Account cart
     selector = { _id: cartId, accountId };
   } else {
     // Anonymous cart
-    if (!cartToken) {
-      throw new ReactionError("not-found", "Cart not found");
-    }
+
+    console.log("CART TOKEN ", cartToken);
+    // if (!cartToken) {
+    //   throw new ReactionError("not-found", "Cart not found");
+    // }
 
     selector = { _id: cartId, anonymousAccessToken: hashToken(cartToken) };
   }

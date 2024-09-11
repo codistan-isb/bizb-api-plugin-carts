@@ -11,11 +11,18 @@ import ReactionError from "@reactioncommerce/reaction-error";
  * @param {String} [params.shopId] - A shop ID
  * @returns {Promise<Object>|undefined} A Cart document, if one is found
  */
-export default async function accountCartByAccountId(context, { accountId, shopId } = {}) {
+export default async function accountCartByAccountId(
+  context,
+  { accountId, shopId } = {}
+) {
   const { collections } = context;
   const { Cart } = collections;
 
-  await context.validatePermissions(`reaction:legacy:accounts:${accountId._id}`, "read", { shopId, owner: accountId });
+  await context.validatePermissions(
+    `reaction:legacy:accounts:${accountId._id}`,
+    "read",
+    { shopId, owner: accountId }
+  );
 
   if (!accountId) {
     throw new ReactionError("invalid-param", "You must provide accountId");
