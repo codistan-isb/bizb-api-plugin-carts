@@ -85,13 +85,13 @@ export default async function addCartItems(
 
     const userId = chosenVariant.uploadedBy?.userId;
 
-    console.log("USERID", userId);
+    // console.log("USERID", userId);
 
     const store = await Accounts.findOne({ _id: userId });
 
     const storeName = store.storeName;
 
-    console.log("STORENAME", storeName);
+    // console.log("STORENAME", storeName);
 
     const variantPriceInfo = await queries.getVariantPrice(
       context,
@@ -187,8 +187,8 @@ export default async function addCartItems(
       variantTitle: chosenVariant.title,
     };
 
-    console.log("STORE", storeName); // Log storeName for debugging
-    console.log("STORENAMW", cartItem.storeNameValue);
+    // console.log("STORE", storeName); // Log storeName for debugging
+    // console.log("STORENAMW", cartItem.storeNameValue);
 
     if (
       variantPriceInfo.compareAtPrice ||

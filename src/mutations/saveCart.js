@@ -24,7 +24,7 @@ export default async function saveCart(context, cart) {
     { upsert: true }
   );
 
-  console.log("upserted count in cart is  ", upsertedCount);
+  // console.log("upserted count in cart is  ", upsertedCount);
 
   if (result.ok !== 1)
     throw new ReactionError("server-error", "Unable to save cart");

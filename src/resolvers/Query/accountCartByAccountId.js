@@ -19,10 +19,10 @@ export default async function accountCartByAccountId(
 ) {
   const { accountId, shopId } = args;
 
-  console.log({
-    accountId: decodeAccountOpaqueId(accountId),
-    shopId: decodeShopOpaqueId(shopId),
-  });
+  // console.log({
+  //   accountId: decodeAccountOpaqueId(accountId),
+  //   shopId: decodeShopOpaqueId(shopId),
+  // });
 
   return context.queries.accountCartByAccountId(context, {
     accountId: decodeAccountOpaqueId(accountId),

@@ -12,11 +12,15 @@ import { decodeCartOpaqueId } from "../../xforms/id.js";
  * @param {Object} context - An object containing the per-request state
  * @returns {Promise<Object>|undefined} A Cart object
  */
-export default async function anonymousCartByCartId(parentResult, args, context) {
+export default async function anonymousCartByCartId(
+  parentResult,
+  args,
+  context
+) {
   const { cartId, cartToken } = args;
 
   return context.queries.anonymousCartByCartId(context, {
     cartId: decodeCartOpaqueId(cartId),
-    cartToken
+    cartToken,
   });
 }
