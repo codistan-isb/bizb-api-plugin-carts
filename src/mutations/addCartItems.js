@@ -20,6 +20,8 @@ export default async function addCartItems(context, input, options = {}) {
   const { collections, accountId = null } = context;
   const { Cart } = collections;
 
+  console.log("CART TOKEN", cartToken);
+
   // console.log("ACCOUNT ID", accountId);
   let selector;
   if (accountId) {
@@ -28,15 +30,20 @@ export default async function addCartItems(context, input, options = {}) {
   } else {
     // Anonymous cart
 
-    // console.log("CART TOKEN ", cartToken);
-    // if (!cartToken) {
-    //   throw new ReactionError("not-found", "Cart not found");
-    // }
+    console.log("CART TOKEN ", cartToken);
+    if (!cartToken) {
+      throw new ReactionError("not-found", "Cart not found");
+    }
 
     selector = { _id: cartId, anonymousAccessToken: hashToken(cartToken) };
+    // selector = { _id: cartId, anonymousAccessToken:cartToken };
+
+    console.log("CART TOKEN  jjjjj", selector.anonymousAccessToken);
   }
 
+  console.log("SELECTOR", selector);
   const cart = await Cart.findOne(selector);
+
   if (!cart) {
     throw new ReactionError("not-found", "Cart not found");
   }
@@ -60,11 +67,11 @@ export default async function addCartItems(context, input, options = {}) {
     updatedAt: new Date(),
   };
 
-  cosnole.log("UPDATE CART =======", updateCart);
+  // cosnole.log("UPDATE CART =======", updateCart);
 
   const savedCart = await context.mutations.saveCart(context, updatedCart);
 
-  console.log("SAVED CART ======= ", savedCart);
+  // console.log("SAVED CART ======= ", savedCart);
 
   return { cart: savedCart, incorrectPriceFailures, minOrderQuantityFailures };
 }
