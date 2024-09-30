@@ -1,4 +1,5 @@
 import addCartItems from "./addCartItems.js";
+import addCartOptimize from "./addCartOptimize.js";
 import convertAnonymousCartToNewAccountCart from "./convertAnonymousCartToNewAccountCart.js";
 import createCart from "./createCart.js";
 import reconcileCarts from "./reconcileCarts.js";
@@ -16,6 +17,7 @@ import updateCartItemsQuantity from "./updateCartItemsQuantity.js";
 
 export default {
   addCartItems,
+  addCartOptimize,
   convertAnonymousCartToNewAccountCart,
   createCart,
   reconcileCarts,
@@ -29,5 +31,5 @@ export default {
   setEmailOnAnonymousCart,
   setShippingAddressOnCart,
   transformAndValidateCart,
-  updateCartItemsQuantity
+  updateCartItemsQuantity,
 };
