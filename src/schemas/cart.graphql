@@ -568,6 +568,10 @@ type SetEmailOnAnonymousCartPayload {
 extend type Mutation {
   "Add item(s) to a cart"
   addCartItems("Mutation input" input: AddCartItemsInput!): AddCartItemsPayload!
+  addCartOptimize(
+    "Mutation input"
+    input: AddCartItemsInput!
+  ): AddCartItemsPayload!
 
   "Create a new cart"
   createCart("Mutation input" input: CreateCartInput!): CreateCartPayload!

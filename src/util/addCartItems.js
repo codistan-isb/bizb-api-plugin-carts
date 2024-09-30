@@ -64,12 +64,6 @@ export default async function addCartItems(
     const { metafields, productConfiguration, quantity, price } = inputItem;
     const { productId, productVariantId } = productConfiguration;
 
-    // const storeName = await storeNameValue(context, productId);
-
-    // console.log("STORE", storeName);
-
-    // console.log("VARINT ID", productVariantId);
-
     // Get the published product from the DB, in order to get variant title and check price.
     // This could be done outside of the loop to reduce db hits, but 99% of the time inputItems
     // will have only one item, so we can skip that optimization for now in favor of cleaner code.
@@ -85,13 +79,9 @@ export default async function addCartItems(
 
     const userId = chosenVariant.uploadedBy?.userId;
 
-    // console.log("USERID", userId);
-
     const store = await Accounts.findOne({ _id: userId });
 
     const storeName = store.storeName;
-
-    // console.log("STORENAME", storeName);
 
     const variantPriceInfo = await queries.getVariantPrice(
       context,
@@ -188,7 +178,7 @@ export default async function addCartItems(
     };
 
     // console.log("STORE", storeName); // Log storeName for debugging
-    // console.log("STORENAMW", cartItem.storeNameValue);
+    console.log("STORENAME", cartItem.storeNameValue);
 
     if (
       variantPriceInfo.compareAtPrice ||

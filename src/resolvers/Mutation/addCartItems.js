@@ -1,4 +1,7 @@
-import { decodeCartItemsOpaqueIds, decodeCartOpaqueId } from "../../xforms/id.js";
+import {
+  decodeCartItemsOpaqueIds,
+  decodeCartOpaqueId,
+} from "../../xforms/id.js";
 
 /**
  * @name Mutation/addCartItems
@@ -16,24 +19,26 @@ import { decodeCartItemsOpaqueIds, decodeCartOpaqueId } from "../../xforms/id.js
  * @returns {Promise<Object>} AddCartItemsPayload
  */
 export default async function addCartItems(parentResult, { input }, context) {
-  const { cartId: opaqueCartId, clientMutationId = null, items: itemsInput, cartToken } = input;
+  const {
+    cartId: opaqueCartId,
+    clientMutationId = null,
+    items: itemsInput,
+    cartToken,
+  } = input;
   const cartId = decodeCartOpaqueId(opaqueCartId);
   const items = decodeCartItemsOpaqueIds(itemsInput);
 
-  const {
-    cart,
-    incorrectPriceFailures,
-    minOrderQuantityFailures
-  } = await context.mutations.addCartItems(context, {
-    cartId,
-    items,
-    cartToken
-  });
+  const { cart, incorrectPriceFailures, minOrderQuantityFailures } =
+    await context.mutations.addCartItems(context, {
+      cartId,
+      items,
+      cartToken,
+    });
 
   return {
     cart,
     incorrectPriceFailures,
     minOrderQuantityFailures,
-    clientMutationId
+    clientMutationId,
   };
 }
