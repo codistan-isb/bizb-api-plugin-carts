@@ -301,6 +301,8 @@ input CreateCartInput {
   "Array of items to add to new cart."
   items: [CartItemInput]!
 
+  shouldCreateWithoutItems: Boolean
+
   "ShopId association for the cart."
   shopId: ID!
 }
