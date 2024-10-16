@@ -16,12 +16,15 @@ import {
  * @param {Object} context - an object containing the per-request state
  * @returns {Promise<Object>} CreateCartPayload
  */
+
 export default async function createCart(parentResult, { input }, context) {
   const {
     clientMutationId = null,
     items: itemsInput,
     shopId: opaqueShopId,
+    shouldCreateWithoutItems, // Pass this from the client
   } = input;
+
   const shopId = decodeShopOpaqueId(opaqueShopId);
   const items = decodeCartItemsOpaqueIds(itemsInput);
 
@@ -29,6 +32,7 @@ export default async function createCart(parentResult, { input }, context) {
     await context.mutations.createCart(context, {
       items,
       shopId,
+      shouldCreateWithoutItems,
     });
 
   return {
@@ -39,3 +43,27 @@ export default async function createCart(parentResult, { input }, context) {
     token,
   };
 }
+
+// export default async function createCart(parentResult, { input }, context) {
+//   const {
+//     clientMutationId = null,
+//     items: itemsInput,
+//     shopId: opaqueShopId,
+//   } = input;
+//   const shopId = decodeShopOpaqueId(opaqueShopId);
+//   const items = decodeCartItemsOpaqueIds(itemsInput);
+
+//   const { cart, incorrectPriceFailures, minOrderQuantityFailures, token } =
+//     await context.mutations.createCart(context, {
+//       items,
+//       shopId,
+//     });
+
+//   return {
+//     cart,
+//     clientMutationId,
+//     incorrectPriceFailures,
+//     minOrderQuantityFailures,
+//     token,
+//   };
+// }
