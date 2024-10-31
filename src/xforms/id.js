@@ -17,6 +17,8 @@ export const encodeCartItemOpaqueId = encodeOpaqueId(namespaces.CartItem);
 export const encodeCartOpaqueId = encodeOpaqueId(namespaces.Cart);
 export const encodeFulfillmentGroupOpaqueId = encodeOpaqueId(namespaces.FulfillmentGroup);
 export const encodeShopOpaqueId = encodeOpaqueId(namespaces.Shop);
+export const encodeProductOpaqueId = encodeOpaqueId("reaction/product");
+
 
 export const decodeAccountOpaqueId = decodeOpaqueIdForNamespace(namespaces.Account);
 export const decodeAddressOpaqueId = decodeOpaqueIdForNamespace(namespaces.Address);

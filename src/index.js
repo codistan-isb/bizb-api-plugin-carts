@@ -14,6 +14,7 @@ import startup from "./startup.js";
  * @returns {undefined}
  */
 export default async function register(app) {
+  console.log("RESGISTER CART ON LOCAL======")
   await app.registerPlugin({
     label: "Carts",
     name: "carts",
