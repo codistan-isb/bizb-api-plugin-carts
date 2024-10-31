@@ -11,6 +11,7 @@ test("query anonymous cart", async () => {
   };
   const callingParams = {
     _id: cartId,
+
     anonymousAccessToken: hashToken(cartToken)
   };
 

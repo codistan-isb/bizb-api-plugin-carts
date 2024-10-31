@@ -259,6 +259,16 @@ enum CartReconciliationMode {
   merge
 }
 
+# type ProductSoldOutStatus {
+#   isSoldOut: Boolean!
+#   message: String!
+# }
+
+type ProductSoldOutStatus {
+  productId: ID!
+  isSoldOut: Boolean!
+  message: String!
+}
 ####################
 # Queries
 ####################
@@ -287,6 +297,21 @@ extend type Query {
     "Shop that owns the cart"
     shopId: ID!
   ): Cart
+
+  # checkSoldProduct(
+  #   cartId: ID!
+
+  #   """
+  #   A valid anonymous cart access cartToken for this cart. This is returned when you create
+  #   an anonymous cart and should be stored securely in storefront client storage.
+  #   """
+  #   cartToken: String!
+  # ): Cart
+
+  # checkSoldProduct(productId: ID!): ProductSoldOutStatus
+  checkSoldProduct(productIds: [ID!]!): [ProductSoldOutStatus!]!
+
+  # checkSoldProduct(productIds: [ID!]!): [ProductSoldOutStatus!]
 }
 
 ####################
