@@ -221,6 +221,8 @@ type CartItem implements Node {
 
   storeNameValue: storeNameValue
 
+  sellerId: ID!
+
   "The quantity of this item that has been added to the cart. This must be a positive integer. Remove this `CartItem` from it's associated cart if you want `0` of this item."
   quantity: Int!
 
