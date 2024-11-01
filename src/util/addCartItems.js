@@ -81,7 +81,10 @@ export default async function addCartItems(
 
     const store = await Accounts.findOne({ _id: userId });
 
-    const storeName = store.storeName;
+    const storeName = store?.storeName;
+    const sellerId = store?._id;
+    console.log("SELLER ID:", sellerId);
+    console.log("STORE NAME:", storeName);
 
     const variantPriceInfo = await queries.getVariantPrice(
       context,
@@ -165,6 +168,7 @@ export default async function addCartItems(
       quantity,
       shopId: catalogProduct.shopId,
       storeNameValue: { storeName }, // Here is where it's being added
+      sellerId,
       // Subtotal will be kept updated by event handler watching for catalog changes.
       subtotal: {
         amount: +accounting.toFixed(variantPriceInfo.price * quantity, 3),

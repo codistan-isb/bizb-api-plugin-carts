@@ -809,6 +809,7 @@ export const CartItem = new SimpleSchema({
     optional: true,
     blackbox: true, // This will allow any subfields inside `storeNameValue`
   },
+  sellerId: String
 });
 
 /**
