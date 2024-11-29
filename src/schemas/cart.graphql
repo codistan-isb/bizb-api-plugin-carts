@@ -261,15 +261,20 @@ enum CartReconciliationMode {
   merge
 }
 
-# type ProductSoldOutStatus {
-#   isSoldOut: Boolean!
-#   message: String!
-# }
-
 type ProductSoldOutStatus {
   productId: ID!
   isSoldOut: Boolean!
   message: String!
+}
+
+type ProductItemStatus {
+  itemId: ID
+  productId: ID
+  isSoldOut: Boolean
+  isVisible: Boolean
+  inventoryInStock: Int
+  productTitle: String
+  message: String
 }
 ####################
 # Queries
@@ -310,10 +315,8 @@ extend type Query {
   #   cartToken: String!
   # ): Cart
 
-  # checkSoldProduct(productId: ID!): ProductSoldOutStatus
-  checkSoldProduct(productIds: [ID!]!): [ProductSoldOutStatus!]!
-
-  # checkSoldProduct(productIds: [ID!]!): [ProductSoldOutStatus!]
+  checkSoldProduct(cartId: ID!): [ProductItemStatus!]!
+  # checkSoldProduct(cartId: ID!, itemIds: [ID!]!): [ProductSoldOutStatus!]!
 }
 
 ####################

@@ -83,8 +83,8 @@ export default async function addCartItems(
 
     const storeName = store?.storeName;
     const sellerId = store?._id;
-    console.log("SELLER ID:", sellerId);
-    console.log("STORE NAME:", storeName);
+    // console.log("SELLER ID:", sellerId);
+    // console.log("STORE NAME:", storeName);
 
     const variantPriceInfo = await queries.getVariantPrice(
       context,
