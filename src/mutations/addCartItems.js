@@ -21,6 +21,8 @@ export default async function addCartItems(context, input, options = {}) {
   const { Cart } = collections;
 
   console.log("CART TOKEN", cartToken);
+  console.log("CONTEXT USER ID", context.userId);
+  console.log("ACCOUNT ID", accountId);
 
   // console.log("ACCOUNT ID", accountId);
   let selector;
@@ -36,7 +38,7 @@ export default async function addCartItems(context, input, options = {}) {
     }
 
     selector = { _id: cartId, anonymousAccessToken: hashToken(cartToken) };
-    // selector = { _id: cartId, anonymousAccessToken:cartToken };
+    // selector = { _id: cartId, anonymousAccessToken: cartToken };
 
     console.log("CART TOKEN  jjjjj", selector.anonymousAccessToken);
   }
@@ -51,6 +53,7 @@ export default async function addCartItems(context, input, options = {}) {
   const { incorrectPriceFailures, minOrderQuantityFailures, updatedItemList } =
     await addCartItemsUtil(context, cart.items, items, {
       skipPriceCheck: options.skipPriceCheck,
+      useBidPricing: true, // Enable bid pricing integration
     });
 
   // const updatedCart = {

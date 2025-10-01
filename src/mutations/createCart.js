@@ -49,7 +49,7 @@ export default async function createCart(context, input) {
   }
 
   const { incorrectPriceFailures, minOrderQuantityFailures, updatedItemList } =
-    await addCartItems(context, [], items || []);
+    await addCartItems(context, [], items || [], { useBidPricing: true });
 
   // If all input items were invalid and shouldCreateWithoutItems is false, don't create a cart
   if (!updatedItemList.length && !shouldCreateWithoutItems) {

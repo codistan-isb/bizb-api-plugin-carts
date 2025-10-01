@@ -276,6 +276,14 @@ type ProductItemStatus {
   productTitle: String
   message: String
 }
+
+type AcceptedBidInfo {
+  hasAcceptedBid: Boolean!
+  bidPrice: Money
+  isValid: Boolean!
+  validTill: DateTime
+  bidId: ID
+}
 ####################
 # Queries
 ####################
@@ -317,6 +325,9 @@ extend type Query {
 
   checkSoldProduct(cartId: ID!): [ProductItemStatus!]!
   # checkSoldProduct(cartId: ID!, itemIds: [ID!]!): [ProductSoldOutStatus!]!
+
+  "Check if user has an accepted bid for a product"
+  checkAcceptedBid(productId: ID!, variantId: ID!): AcceptedBidInfo
 }
 
 ####################

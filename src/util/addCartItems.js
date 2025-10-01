@@ -2,6 +2,8 @@ import Random from "@reactioncommerce/random";
 import SimpleSchema from "simpl-schema";
 import accounting from "accounting-js";
 import ReactionError from "@reactioncommerce/reaction-error";
+import getBidPrice from "./getBidPrice.js";
+import decodeOpaqueId from "@reactioncommerce/api-utils/decodeOpaqueId.js";
 
 const inputItemSchema = new SimpleSchema({
   metafields: {
@@ -33,6 +35,7 @@ const inputItemSchema = new SimpleSchema({
  * @param {Object} [options] - Options
  * @param {Boolean} [options.skipPriceCheck] - For backwards compatibility, set to `true` to skip checking price.
  *   Skipping this is not recommended for new code.
+ * @param {Boolean} [options.useBidPricing] - If true, check for accepted bids and use bid price instead of original price.
  * @returns {Object} Object with `incorrectPriceFailures` and `minOrderQuantityFailures` and `updatedItemList` props
  */
 export default async function addCartItems(
@@ -50,7 +53,7 @@ export default async function addCartItems(
     );
   }
 
-  const { Catalog, Accounts } = collections;
+  const { Catalog, Accounts, Bids } = collections;
 
   inputItemSchema.validate(inputItems);
 
@@ -63,6 +66,8 @@ export default async function addCartItems(
   const promises = inputItems.map(async (inputItem) => {
     const { metafields, productConfiguration, quantity, price } = inputItem;
     const { productId, productVariantId } = productConfiguration;
+
+    console.log("PRODUCT configuration ", productConfiguration);
 
     // Get the published product from the DB, in order to get variant title and check price.
     // This could be done outside of the loop to reduce db hits, but 99% of the time inputItems
@@ -98,13 +103,62 @@ export default async function addCartItems(
       );
     }
 
-    if (
-      options.skipPriceCheck !== true &&
-      variantPriceInfo.price !== price.amount
-    ) {
+    let acceptedBidPrice = null;
+    if (options.useBidPricing) {
+      // Use accountId if userId is not available
+      const userId = context.userId || context.accountId;
+      console.log("USING USER ID FOR BID CHECK:", userId);
+
+      if (userId) {
+        // Decode opaque IDs to get actual database IDs for bid checking
+        let decodedProductId = productId;
+        let decodedVariantId = productVariantId;
+
+        try {
+          const decodedProduct = decodeOpaqueId(productId);
+          if (decodedProduct.id !== productId) {
+            decodedProductId = decodedProduct.id;
+          }
+        } catch (e) {
+          console.log("Product ID decode failed, using original:", productId);
+        }
+
+        try {
+          const decodedVariant = decodeOpaqueId(productVariantId);
+          if (decodedVariant.id !== productVariantId) {
+            decodedVariantId = decodedVariant.id;
+          }
+        } catch (e) {
+          console.log(
+            "Variant ID decode failed, using original:",
+            productVariantId
+          );
+        }
+
+        console.log("DECODED IDs FOR BID CHECK:", {
+          decodedProductId,
+          decodedVariantId,
+        });
+
+        acceptedBidPrice = await getBidPrice(
+          context,
+          userId,
+          decodedProductId,
+          decodedVariantId
+        );
+      }
+    }
+
+    console.log("ACCEPTED BID PRICE", acceptedBidPrice);
+
+    // Use accepted bid price if available, otherwise use original price
+    const finalPrice =
+      acceptedBidPrice !== null ? acceptedBidPrice : variantPriceInfo.price;
+
+    if (options.skipPriceCheck !== true && finalPrice !== price.amount) {
       incorrectPriceFailures.push({
         currentPrice: {
-          amount: variantPriceInfo.price,
+          amount: finalPrice,
           currencyCode: price.currencyCode,
         },
         productConfiguration,
@@ -153,11 +207,11 @@ export default async function addCartItems(
       // This one will be kept updated by event handler watching for
       // catalog changes whereas `priceWhenAdded` will not.
       price: {
-        amount: variantPriceInfo.price,
+        amount: finalPrice,
         currencyCode: price.currencyCode,
       },
       priceWhenAdded: {
-        amount: variantPriceInfo.price,
+        amount: finalPrice,
         currencyCode: price.currencyCode,
       },
       productId,
@@ -171,7 +225,7 @@ export default async function addCartItems(
       sellerId,
       // Subtotal will be kept updated by event handler watching for catalog changes.
       subtotal: {
-        amount: +accounting.toFixed(variantPriceInfo.price * quantity, 3),
+        amount: +accounting.toFixed(finalPrice * quantity, 3),
         currencyCode: price.currencyCode,
       },
       taxCode: chosenVariant.taxCode,
@@ -214,7 +268,7 @@ export default async function addCartItems(
       const updatedQuantity = currentCartItem.quantity + cartItem.quantity;
       // Recalculate subtotal with new quantity number
       const updatedSubtotalAmount = +accounting.toFixed(
-        updatedQuantity * cartItem.price.amount,
+        updatedQuantity * finalPrice,
         3
       );
       updatedItemList[currentMatchingItemIndex] = {
